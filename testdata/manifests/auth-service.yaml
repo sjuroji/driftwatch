@@ -1,0 +1,11 @@
+name: auth-service
+version: "1.2.3"
+image: ghcr.io/yourorg/auth-service:1.2.3
+replicas: 2
+environment:
+  LOG_LEVEL: info
+  PORT: "8080"
+  DB_HOST: postgres.internal
+ports:
+  - 8080
+  - 9090
