@@ -1,3 +1,4 @@
+// Package manifest handles loading and validating service manifest files.
 package manifest
 
 import (
@@ -7,42 +8,38 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// ServiceManifest represents the declared configuration for a service.
-type ServiceManifest struct {
-	Name        string            `yaml:"name"`
-	Version     string            `yaml:"version"`
-	Image       string            `yaml:"image"`
-	Replicas    int               `yaml:"replicas"`
-	Environment map[string]string `yaml:"environment"`
-	Ports       []int             `yaml:"ports"`
+// Manifest describes the desired state of a single deployed service.
+type Manifest struct {
+	Name     string            `yaml:"name"`
+	Image    string            `yaml:"image"`
+	Replicas int               `yaml:"replicas"`
+	Labels   map[string]string `yaml:"labels"`
 }
 
-// Load reads and parses a manifest YAML file from the given path.
-func Load(path string) (*ServiceManifest, error) {
+// Load reads a YAML manifest file from path and returns the parsed Manifest.
+// It returns an error if the file cannot be read, cannot be decoded, or fails
+// basic validation.
+func Load(path string) (Manifest, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
-		return nil, fmt.Errorf("reading manifest file %q: %w", path, err)
+		return Manifest{}, fmt.Errorf("manifest: read %q: %w", path, err)
 	}
 
-	var m ServiceManifest
+	var m Manifest
 	if err := yaml.Unmarshal(data, &m); err != nil {
-		return nil, fmt.Errorf("parsing manifest file %q: %w", path, err)
+		return Manifest{}, fmt.Errorf("manifest: decode %q: %w", path, err)
 	}
 
-	if err := m.Validate(); err != nil {
-		return nil, fmt.Errorf("invalid manifest %q: %w", path, err)
+	if err := validate(m); err != nil {
+		return Manifest{}, fmt.Errorf("manifest: validate %q: %w", path, err)
 	}
 
-	return &m, nil
+	return m, nil
 }
 
-// Validate checks that required fields are present and valid.
-func (m *ServiceManifest) Validate() error {
+func validate(m Manifest) error {
 	if m.Name == "" {
-		return fmt.Errorf("manifest must have a name")
-	}
-	if m.Image == "" {
-		return fmt.Errorf("manifest must have an image")
+		return fmt.Errorf("name is required")
 	}
 	if m.Replicas < 0 {
 		return fmt.Errorf("replicas must be non-negative, got %d", m.Replicas)
