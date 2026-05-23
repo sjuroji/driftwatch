@@ -59,6 +59,16 @@ func TestCache_Delete_RemovesEntry(t *testing.T) {
 	}
 }
 
+func TestCache_Delete_NonexistentKey(t *testing.T) {
+	// Deleting a key that was never set should not panic or error.
+	c := New(time.Minute)
+	c.Delete("ghost")
+
+	if c.Len() != 0 {
+		t.Fatalf("expected 0 entries, got %d", c.Len())
+	}
+}
+
 func TestCache_Flush_ClearsAll(t *testing.T) {
 	c := New(time.Minute)
 	c.Set("a", 1)
