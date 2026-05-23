@@ -40,6 +40,7 @@ Example output:
 |------|-------------|---------|
 | `--manifests` | Path to manifest files | `./manifests` |
 | `--context` | Kubernetes context to target | current context |
+| `--namespace` | Kubernetes namespace to scan | `default` |
 | `--output` | Output format (`text`, `json`) | `text` |
 | `--fail-on-drift` | Exit with code 1 if drift is found | `false` |
 
