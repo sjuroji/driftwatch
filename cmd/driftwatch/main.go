@@ -46,7 +46,12 @@ func run() error {
 		return fmt.Errorf("fetching live state: %w", err)
 	}
 
-	report := drift.Detect(*man, liveStates[man.Name])
+	liveState, ok := liveStates[man.Name]
+	if !ok {
+		return fmt.Errorf("no live state returned for service %q", man.Name)
+	}
+
+	report := drift.Detect(*man, liveState)
 
 	formatter, err := output.New(format)
 	if err != nil {
