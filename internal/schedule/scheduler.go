@@ -70,5 +70,13 @@ func (s *Scheduler) Run(ctx context.Context) {
 }
 
 func (s *Scheduler) runJob(ctx context.Context) error {
-	return s.job(ctx)
+	start := time.Now()
+	err := s.job(ctx)
+	elapsed := time.Since(start)
+	if err != nil {
+		log.Printf("schedule: job finished in %s with error: %v", elapsed.Round(time.Millisecond), err)
+	} else {
+		log.Printf("schedule: job finished in %s", elapsed.Round(time.Millisecond))
+	}
+	return err
 }
