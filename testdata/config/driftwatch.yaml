@@ -1,0 +1,16 @@
+# Example driftwatch configuration file.
+# Place this file at the root of your project or pass it via --config.
+
+# Directory containing service manifest YAML files.
+manifest_dir: ./testdata/manifests
+
+# Output format for drift reports: "text" or "json".
+output_format: text
+
+# Subset of services to check. Leave empty to check all discovered manifests.
+services:
+  - auth-service
+
+# Exit with a non-zero status code when drift is detected.
+# Useful for CI pipelines.
+fail_on_drift: false
