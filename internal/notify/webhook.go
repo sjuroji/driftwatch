@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"time"
 
@@ -72,6 +73,11 @@ func (w *webhookNotifier) Notify(report drift.Report) error {
 	defer resp.Body.Close()
 
 	if resp.StatusCode >= 300 {
+		// Read a snippet of the response body to include in the error for easier debugging.
+		snippet, _ := io.ReadAll(io.LimitReader(resp.Body, 256))
+		if len(snippet) > 0 {
+			return fmt.Errorf("notify: webhook returned status %d: %s", resp.StatusCode, snippet)
+		}
 		return fmt.Errorf("notify: webhook returned status %d", resp.StatusCode)
 	}
 	return nil
