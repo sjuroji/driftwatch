@@ -46,9 +46,9 @@ func run() error {
 		return fmt.Errorf("fetching live state: %w", err)
 	}
 
-	liveState, ok := liveStates[man.Name]
-	if !ok {
-		return fmt.Errorf("no live state returned for service %q", man.Name)
+	liveState, err := resolveLiveState(liveStates, man.Name)
+	if err != nil {
+		return err
 	}
 
 	report := drift.Detect(*man, liveState)
@@ -67,4 +67,14 @@ func run() error {
 	}
 
 	return nil
+}
+
+// resolveLiveState looks up the live state for the named service from the
+// provided map, returning a descriptive error if the entry is missing.
+func resolveLiveState(states map[string]live.State, name string) (live.State, error) {
+	state, ok := states[name]
+	if !ok {
+		return live.State{}, fmt.Errorf("no live state returned for service %q", name)
+	}
+	return state, nil
 }
